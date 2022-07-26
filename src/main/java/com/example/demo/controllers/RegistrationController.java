@@ -4,6 +4,11 @@ import com.example.demo.dtos.GeolocationResponse;
 import com.example.demo.dtos.NewUserDto;
 import com.example.demo.dtos.NewUserResponseDto;
 import com.example.demo.services.GeolocationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -12,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.webjars.NotFoundException;
 
 import javax.validation.Valid;
+import java.awt.print.Book;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,9 +33,14 @@ public class RegistrationController {
         this.geolocationService = geolocationService;
     }
 
-    @PostMapping(value = "/newUser", consumes = {"application/xml","application/json"})
+    @Operation(summary = "Registers a new user, if the user resides in Canada.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User registered",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = NewUserResponseDto.class)) }),
+            @ApiResponse(responseCode = "400", description = "User not registered",
+                    content = { @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)) })})
+    @PostMapping(value = "/newUser", consumes = {"application/json"})
     public NewUserResponseDto registerUserAccount(@RequestBody @Valid NewUserDto new_userDto) {
-         final String DEFAULT_STATUS = "Unknown";
 
         GeolocationResponse geolocationResponse = geolocationService.getUserGeolocation(new_userDto).orElseThrow(
                 () -> new NotFoundException("Employee not found with id"));

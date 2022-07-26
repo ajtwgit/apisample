@@ -4,11 +4,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.NotBlank;
 
-@Schema(description = "New user Response")
+@Schema(description = "Response sent user after valid enrollment.")
 public class NewUserResponseDto {
 
     @NotBlank
-    private String uuid;
+    private final String uuid;
 
     @NotBlank
     private final String userName;

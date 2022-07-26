@@ -11,16 +11,17 @@ public class NewUserDto {
     @NotBlank
     private final String userName;
 
+    @NotBlank
     @NewUserDtoConstraint
     private final String password;
 
     @NotBlank
-    private final String IpAddress;
+    private final String ipAddress;
 
     public NewUserDto(String userName, String password, String ipAddress) {
         this.userName = userName;
         this.password = password;
-        IpAddress = ipAddress;
+        this.ipAddress = ipAddress;
     }
 
     public String getUserName() {
@@ -32,6 +33,6 @@ public class NewUserDto {
     }
 
     public String getIpAddress() {
-        return IpAddress;
+        return ipAddress;
     }
 }
