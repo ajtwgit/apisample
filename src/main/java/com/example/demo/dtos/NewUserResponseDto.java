@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotBlank;
 
 @Schema(description = "New user Response")
-public class NewUserResponseDTO {
+public class NewUserResponseDto {
 
     @NotBlank
     private String uuid;
@@ -19,7 +19,7 @@ public class NewUserResponseDTO {
     @NotBlank
     private final String welcomeMessage;
 
-    public NewUserResponseDTO(String uuid, String userName, String city, String welcomeMessage) {
+    public NewUserResponseDto(String uuid, String userName, String city, String welcomeMessage) {
         this.uuid = uuid;
         this.userName = userName;
         this.city = city;

@@ -1,9 +1,9 @@
 package com.example.demo.dtos;
 
+import com.example.demo.validators.NewUserDtoConstraint;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 @Schema(description = "New user Dto")
 public class NewUserDto {
@@ -11,7 +11,7 @@ public class NewUserDto {
     @NotBlank
     private final String userName;
 
-    @Size(min=8, max=14)
+    @NewUserDtoConstraint
     private final String password;
 
     @NotBlank
