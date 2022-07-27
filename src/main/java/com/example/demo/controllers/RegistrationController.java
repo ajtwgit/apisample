@@ -3,6 +3,8 @@ package com.example.demo.controllers;
 import com.example.demo.dtos.GeolocationResponse;
 import com.example.demo.dtos.NewUserDto;
 import com.example.demo.dtos.NewUserResponseDto;
+import com.example.demo.exceptions.Error;
+import com.example.demo.exceptions.InvalidCountryException;
 import com.example.demo.services.GeolocationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.webjars.NotFoundException;
 
 import javax.validation.Valid;
-import java.awt.print.Book;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,15 +44,15 @@ public class RegistrationController {
     public NewUserResponseDto registerUserAccount(@RequestBody @Valid NewUserDto new_userDto) {
 
         GeolocationResponse geolocationResponse = geolocationService.getUserGeolocation(new_userDto).orElseThrow(
-                () -> new NotFoundException("Employee not found with id"));
+                () -> new NotFoundException("Geolocation API failure."));
 
         return geolocationService.getUserResponse(new_userDto, geolocationResponse);
 
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleInvalidUseDto(MethodArgumentNotValidException ex) {
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public Map<String, String> handleInvalidUserDto(MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
 
@@ -60,6 +61,14 @@ public class RegistrationController {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
+
         return errors;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidCountryException.class)
+    @ResponseBody
+    public Error handleInvalidCountryException(Exception error) {
+        return new Error(error);
     }
 }

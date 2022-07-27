@@ -3,12 +3,12 @@ package com.example.demo.services;
 import com.example.demo.dtos.GeolocationResponse;
 import com.example.demo.dtos.NewUserDto;
 import com.example.demo.dtos.NewUserResponseDto;
+import com.example.demo.exceptions.InvalidCountryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.webjars.NotFoundException;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -47,13 +47,13 @@ public class GeolocationService {
         NewUserResponseDto userResponseDTO;
 
         if(!response.getCountry().equals("Canada")){
-            throw new NotFoundException("Employee not found with id");
+            throw new InvalidCountryException();
+
         }else {
             UUID uuid = UUID.randomUUID();
             userResponseDTO = new NewUserResponseDto(uuid.toString(), newUserDto.getUserName(), response.getCity(),
                     String.format(welcomeMessage, newUserDto.getUserName(), response.getCity()));
         }
-
         return userResponseDTO;
     }
 }
