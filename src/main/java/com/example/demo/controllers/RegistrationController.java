@@ -4,6 +4,7 @@ import com.example.demo.dtos.GeolocationResponse;
 import com.example.demo.dtos.NewUserDto;
 import com.example.demo.dtos.NewUserResponseDto;
 import com.example.demo.exceptions.Error;
+import com.example.demo.exceptions.GeoApiSearchFailed;
 import com.example.demo.exceptions.InvalidCountryException;
 import com.example.demo.services.GeolocationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.webjars.NotFoundException;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -36,15 +36,14 @@ public class RegistrationController {
 
     @Operation(summary = "Registers a new user, if the user resides in Canada.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User registered",
+            @ApiResponse(responseCode = "200", description = "User registered.",
                     content = { @Content(mediaType = "application/json", schema = @Schema(implementation = NewUserResponseDto.class)) }),
-            @ApiResponse(responseCode = "400", description = "User not registered",
-                    content = { @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)) })})
+            @ApiResponse(responseCode = "415", description = "User DTO must be json object.",
+                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)) })})
     @PostMapping(value = "/newUser", consumes = {"application/json"})
     public NewUserResponseDto registerUserAccount(@RequestBody @Valid NewUserDto new_userDto) {
 
-        GeolocationResponse geolocationResponse = geolocationService.getUserGeolocation(new_userDto).orElseThrow(
-                () -> new NotFoundException("Geolocation API failure."));
+        GeolocationResponse geolocationResponse = geolocationService.getUserGeolocation(new_userDto);
 
         return geolocationService.getUserResponse(new_userDto, geolocationResponse);
 
@@ -52,6 +51,7 @@ public class RegistrationController {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({MethodArgumentNotValidException.class})
+    @ResponseBody
     public Map<String, String> handleInvalidUserDto(MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
@@ -67,8 +67,13 @@ public class RegistrationController {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(InvalidCountryException.class)
-    @ResponseBody
     public Error handleInvalidCountryException(Exception error) {
+        return new Error(error);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(GeoApiSearchFailed.class)
+    public Error handleFailedGeoApiSearch(Exception error) {
         return new Error(error);
     }
 }
